@@ -1,4 +1,7 @@
 {
+  "variables": {
+    "BUILD_WITH_LIBEXEC": "<!(python -c 'from ctypes.util import find_library;print int(find_library(\"execinfo\")!=None)')",
+  },
   "targets": [
     {
       "target_name": "segfault-handler",
@@ -6,6 +9,11 @@
         "src/segfault-handler.cpp"
       ],
       "conditions": [
+        [ "<(BUILD_WITH_LIBEXEC)==1", {
+          "libraries": [
+            "-lexecinfo"
+          ]
+        }],
         ["OS=='win'", {
           "msvs_settings": {
             "VCCLCompilerTool": {
@@ -16,13 +24,6 @@
             "src/StackWalker.cpp",
             "includes/StackWalker.h"
           ]
-        }],
-        ["OS=='linux'", {
-          "link_settings": {
-            "libraries": [
-              "-Wl,-rpath,@loader_path"
-            ]
-          }
         }]
       ],
       "cflags": [ "-O0", "-funwind-tables" ],
